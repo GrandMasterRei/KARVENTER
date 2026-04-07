@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  karventer-api:
+    build: ./backend
+    container_name: karventer-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - karventer-db
+      - karventer-cache
+
+  karventer-db:
+    image: postgres:15-alpine
+    container_name: karventer-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: karventer
+    ports:
+      - "5432:5432"
+
+  karventer-cache:
+    image: redis:7-alpine
+    container_name: karventer-cache
+    ports:
+      - "6379:6379"

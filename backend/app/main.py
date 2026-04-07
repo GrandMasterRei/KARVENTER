@@ -99,3 +99,45 @@ def get_optimization(product_id: int, market_id: int, db: Session = Depends(get_
 def get_ai_z_report(db: Session = Depends(get_db)):
     """Sistem genelindeki tüm marketleri tarayarak AI destekli finansal Z-Raporu sunar."""
     return ai_module.generate_system_wide_z_report(db)
+@app.get("/api/stocks", tags=["Inventory Management"])
+def get_all_stocks(db: Session = Depends(get_db)):
+    """Tüm marketlerdeki stok durumlarını, ürün ve şube detaylarıyla birlikte getirir."""
+    stocks = db.query(models.Stock).all()
+    result = []
+    
+    for stock in stocks:
+        product = db.query(models.Product).filter(models.Product.product_id == stock.product_id).first()
+        market = db.query(models.Market).filter(models.Market.market_id == stock.market_id).first()
+        
+        if product and market:
+            # Yapay zeka öncesi basit durum analizi (Kritik, Fazla, Normal)
+            if stock.quantity <= product.min_stock_level:
+                status = "Kritik"
+            elif stock.quantity > product.min_stock_level * 3:
+                status = "Fazla Stok"
+            else:
+                status = "Normal"
+                
+            result.append({
+                "stock_id": stock.stock_id,
+                "product_name": product.product_name,
+                "category": product.category,
+                "market_name": market.name,
+                "city": market.city,
+                "quantity": stock.quantity,
+                "min_stock_level": product.min_stock_level,
+                "status": status
+            })
+            
+    return {"success": True, "data": result}
+@app.get("/api/forecast", tags=["AI & Analytics"])
+def get_ai_forecasts(db: Session = Depends(get_db)):
+    """AI modülünden gelen talep tahmin sonuçlarını listeler."""
+    # Gerçek senaryoda burada ai_module.predict() çağrılır[cite: 317].
+    # Raporundaki 2.13.3 tasarımı için örnek veriler dönüyoruz[cite: 356].
+    forecasts = [
+        {"product_name": "Süt 1L", "market_name": "Kadıköy Merkez", "predicted_sales": 145, "confidence_score": "%94"},
+        {"product_name": "Ekmek 250g", "market_name": "Beşiktaş Şube", "predicted_sales": 850, "confidence_score": "%98"},
+        {"product_name": "Yumurta 30lu", "market_name": "Batı Mini", "predicted_sales": 62, "confidence_score": "%89"},
+    ]
+    return {"success": True, "data": forecasts}

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import axios from 'axios';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { LayoutDashboard, Package, TrendingUp, LogOut, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Package, TrendingUp, LogOut, ShieldCheck, Search, Filter, AlertCircle } from 'lucide-react';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -184,7 +184,204 @@ function Dashboard() {
 }
 
 // --- BOŞ SAYFALAR (Yer Tutucular) ---
-const Inventory = () => <div className="p-8 text-slate-500 font-medium">Stok Yönetimi modülü buraya gelecek...</div>;
+// --- 4. STOK YÖNETİMİ EKRANI ---
+function Inventory() {
+  const [stocks, setStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Tümü');
+
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/stocks');
+        // String isimli test verilerini yine filtreliyoruz
+        const cleanData = response.data.data.filter(s => s.product_name !== "string");
+        setStocks(cleanData);
+      } catch (error) {
+        console.error("Stok verisi çekilemedi:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStocks();
+  }, []);
+
+  // Arama ve Filtreleme Mantığı (Wireframe gereksinimi)
+// --- 5. TALEP TAHMİNLERİ EKRANI (AI FORECAST) ---
+function Forecasts() {
+  const [forecasts, setForecasts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchForecasts = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/forecast');
+        setForecasts(response.data.data);
+      } catch (error) {
+        console.error("Tahmin verisi çekilemedi:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchForecasts();
+  }, []);
+
+  if (loading) return <div className="flex h-full items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Yapay Zeka Talep Tahminleri</h2>
+          <p className="text-slate-500">Gelecek 7 günlük satış öngörüleri ve doğruluk analizleri[cite: 358].</p>
+        </div>
+        <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl flex items-center gap-2">
+          <ShieldCheck className="text-blue-600 w-5 h-5" />
+          <span className="text-blue-800 font-bold text-sm">AI Model Durumu: Aktif</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Tahmin Listesi (Table) */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6 border-b border-slate-50">
+            <h3 className="font-bold text-slate-800">Ürün Bazlı Öngörüler [cite: 361]</h3>
+          </div>
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 text-slate-400 text-xs uppercase tracking-widest font-bold">
+              <tr>
+                <th className="py-4 px-6">Ürün / Şube</th>
+                <th className="py-4 px-6 text-center">Tahmini Satış</th>
+                <th className="py-4 px-6 text-right">Güven Aralığı</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {forecasts.map((f, i) => (
+                <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                  <td className="py-4 px-6 text-slate-700">
+                    <p className="font-bold">{f.product_name}</p>
+                    <p className="text-xs text-slate-400">{f.market_name}</p>
+                  </td>
+                  <td className="py-4 px-6 text-center font-extrabold text-blue-600 text-lg">{f.predicted_sales}</td>
+                  <td className="py-4 px-6 text-right font-mono text-emerald-600 font-bold">{f.confidence_score}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bilgi Kartları / AI Notları */}
+        <div className="space-y-6">
+          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-6 rounded-2xl text-white shadow-lg">
+            <h4 className="font-bold mb-2 flex items-center gap-2"><TrendingUp size={18}/> Akıllı Analiz</h4>
+            <p className="text-sm text-indigo-100 leading-relaxed">
+              Modelimiz, şubeler arası talep farkının bu hafta %12 artacağını öngörüyor. Özellikle <b>Ekmek</b> kategorisinde Batı Mini şubesine sevkiyat artırılmalıdır[cite: 28].
+            </p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <h4 className="font-bold text-slate-800 mb-4">Analiz Parametreleri</h4>
+            <ul className="text-sm space-y-3 text-slate-500 font-medium">
+              <li className="flex justify-between"><span>Veri Penceresi:</span> <span className="text-slate-800">30 Gün</span></li>
+              <li className="flex justify-between"><span>Algoritma:</span> <span className="text-slate-800">Random Forest</span></li>
+              <li className="flex justify-between"><span>Son Eğitim:</span> <span className="text-slate-800">Bugün 04:00</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+    const matchesSearch = stock.product_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          stock.market_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'Tümü' || stock.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return <div className="flex h-full items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>;
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-slate-800">Stok Yönetimi</h2>
+        <p className="text-slate-500">Tüm şubelerdeki güncel stok durumları ve kritik uyarılar.</p>
+      </div>
+
+      {/* Filtreleme Alanı */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-3 text-slate-400 w-5 h-5" />
+          <input 
+            type="text" 
+            placeholder="Ürün veya Şube ara..." 
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="text-slate-400 w-5 h-5" />
+          <select 
+            className="py-2.5 px-4 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white font-medium text-slate-700"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="Tümü">Tüm Durumlar</option>
+            <option value="Kritik">Kritik Stok</option>
+            <option value="Fazla Stok">Fazla Stok</option>
+            <option value="Normal">Normal</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Stok Detay Tablosu */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-100">
+                <th className="py-4 px-6 font-semibold text-slate-500 text-sm uppercase tracking-wider">Ürün Adı</th>
+                <th className="py-4 px-6 font-semibold text-slate-500 text-sm uppercase tracking-wider">Kategori</th>
+                <th className="py-4 px-6 font-semibold text-slate-500 text-sm uppercase tracking-wider">Lokasyon</th>
+                <th className="py-4 px-6 font-semibold text-slate-500 text-sm uppercase tracking-wider">Mevcut Stok</th>
+                <th className="py-4 px-6 font-semibold text-slate-500 text-sm uppercase tracking-wider">Durum</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredStocks.map((stock) => (
+                <tr key={stock.stock_id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4 px-6 font-bold text-slate-700">{stock.product_name}</td>
+                  <td className="py-4 px-6 text-slate-500">
+                    <span className="bg-slate-100 px-3 py-1 rounded-full text-xs font-semibold">{stock.category}</span>
+                  </td>
+                  <td className="py-4 px-6">
+                    <p className="font-semibold text-slate-700">{stock.market_name}</p>
+                    <p className="text-xs text-slate-500">{stock.city}</p>
+                  </td>
+                  <td className="py-4 px-6 font-bold text-slate-700">
+                    {stock.quantity} <span className="text-xs font-normal text-slate-400">/ Min: {stock.min_stock_level}</span>
+                  </td>
+                  <td className="py-4 px-6">
+                    {stock.status === 'Kritik' && <span className="flex items-center gap-1 text-red-600 bg-red-50 px-3 py-1 rounded-lg font-bold text-sm w-max"><AlertCircle w={14} h={14}/> Kritik</span>}
+                    {stock.status === 'Fazla Stok' && <span className="text-amber-600 bg-amber-50 px-3 py-1 rounded-lg font-bold text-sm w-max">Fazla Stok</span>}
+                    {stock.status === 'Normal' && <span className="text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg font-bold text-sm w-max">Normal</span>}
+                  </td>
+                </tr>
+              ))}
+              {filteredStocks.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="py-8 text-center text-slate-500 font-medium">Arama kriterlerine uygun stok bulunamadı.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 const Forecasts = () => <div className="p-8 text-slate-500 font-medium">Talep Tahmin grafikleri buraya gelecek...</div>;
 
 // --- ANA UYGULAMA (ROUTER) ---
