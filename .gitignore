@@ -1,0 +1,15 @@
+# --- Frontend (React) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.eslintcache
+
+# --- Backend (FastAPI & Python) ---
+backend/venv/
+backend/env/
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/alembic/versions/*.pyc
+
+# --- Genel Sistem ---
+.DS_Store
