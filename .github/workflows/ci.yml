@@ -10,9 +10,21 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    # BURASI ÖNEMLİ: GitHub senin için gerçek bir veritabanı açıyor
     services:
-      # Eğer testlerin veritabanı gerektiriyorsa buraya postgres eklenebilir, 
-      # ancak bizim yazdığımız entegrasyon testleri için şimdilik sadece build kontrolü yeterlidir.
+      db:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: karventer
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - name: Checkout Code
@@ -26,13 +38,14 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest httpx fastapi sqlalchemy psycopg-binary
+        # Gerekli tüm kütüphaneleri yüklüyoruz
+        pip install pytest httpx fastapi sqlalchemy psycopg-binary pydantic-settings
 
     - name: Run Pytest
+      env:
+        # Kodun içindeki bağlantı adresini GitHub ortamına uyduruyoruz
+        DATABASE_URL: postgresql+psycopg://postgres:password@localhost:5432/karventer
       run: |
-        # Sadece hata alıp almadığını kontrol etmek için testleri çalıştırıyoruz
-        python -m pytest backend/tests/test_main.py || echo "Uyar: Bazı testler ortam farkından dolayı başarısız olabilir ancak pipeline çalışıyor."
-
-    - name: Docker Build Check
-      run: |
-        docker build -t karventer-api-test ./backend
+        # Backend klasöründen testi çalıştır
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/backend
+        python -m pytest backend/tests/test_main.py
