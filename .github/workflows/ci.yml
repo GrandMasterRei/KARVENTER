@@ -37,7 +37,10 @@ jobs:
     - name: Bağımlılıkları Yükle
       run: |
         python -m pip install --upgrade pip
-        pip install pytest httpx fastapi sqlalchemy "psycopg[binary]" pydantic-settings
+        pip install pytest httpx fastapi sqlalchemy "psycopg[binary]" pydantic-settings pandas scikit-learn
+
+    - name: Veritabanını Bekle
+      run: sleep 10
 
     - name: Testleri Çalıştır
       env:
