@@ -2,8 +2,6 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# ÖNEMLİ: Eğer sistemde 'DATABASE_URL' varsa onu kullan (GitHub için), 
-# yoksa Docker servis ismini kullan.
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL", 
     "postgresql+psycopg://postgres:password@karventer-db:5432/karventer"

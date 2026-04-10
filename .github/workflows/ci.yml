@@ -10,7 +10,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # GitHub sunucusunda geçici bir Postgres veritabanı ayağa kaldırır
     services:
       db:
         image: postgres:15-alpine
@@ -27,23 +26,21 @@ jobs:
           --health-retries 5
 
     steps:
-    - name: Checkout Code
+    - name: Kodu Depodan Çek
       uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
+    - name: Python Ortamını Kur
       uses: actions/setup-python@v5
       with:
         python-version: "3.11"
 
-    - name: Install Dependencies
+    - name: Bağımlılıkları Yükle
       run: |
         python -m pip install --upgrade pip
-        # Postgres v3 driver ve test kütüphanelerini kuruyoruz
         pip install pytest httpx fastapi sqlalchemy "psycopg[binary]" pydantic-settings
 
-    - name: Run Pytest
+    - name: Testleri Çalıştır
       env:
-        # Kodun içindeki database.py'ye 'localhost' üzerinden bağlan diyoruz
         DATABASE_URL: postgresql+psycopg://postgres:password@localhost:5432/karventer
         PYTHONPATH: ./backend
       run: |
