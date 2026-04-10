@@ -1,8 +1,13 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Docker-compose ile BİREBİR uyumlu bağlantı adresimiz:
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://postgres:password@karventer-db:5432/karventer"
+# ÖNEMLİ: Eğer sistemde 'DATABASE_URL' varsa onu kullan (GitHub için), 
+# yoksa Docker servis ismini kullan.
+SQLALCHEMY_DATABASE_URL = os.getenv(
+    "DATABASE_URL", 
+    "postgresql+psycopg://postgres:password@karventer-db:5432/karventer"
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
