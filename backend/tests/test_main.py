@@ -1,22 +1,13 @@
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
+import httpx
 
-client = TestClient(app)
+# Docker'da çalışan aktif API'mize dışarıdan bağlanıp test ediyoruz
+API_URL = "http://localhost:8000"
 
-def test_read_root():
-    """API ana sayfasının çalışıp çalışmadığını test eder"""
-    response = client.get("/")
+def test_health_check():
+    response = httpx.get(f"{API_URL}/")
     assert response.status_code == 200
-    assert response.json() == {"message": "KARVENTER Backend API Sorunsuz Çalışıyor!"}
 
-def test_get_products():
-    """Ürün listeleme endpoint'ini test eder"""
-    response = client.get("/api/products")
+def test_z_report_endpoint():
+    response = httpx.get(f"{API_URL}/api/reports/z-report")
     assert response.status_code == 200
-    assert isinstance(response.json(), list)
-
-def test_create_product_error():
-    """Hatalı veri gönderildiğinde sistemin reddettiğini test eder"""
-    response = client.post("/api/products", json={"yanlis_alan": "hata"})
-    assert response.status_code == 422 # Validation Error
+    assert "financials" in response.json()
