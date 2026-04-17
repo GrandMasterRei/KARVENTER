@@ -1,11 +1,9 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import text
-from . import models, schemas, ai_module
+from . import models, schemas
 from .database import get_db, engine
 
-# Veritabanı tablolarını otomatik oluşturan kod
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="KARVENTER API", version="1.0.0")
@@ -22,7 +20,7 @@ app.add_middleware(
 def read_root():
     return {"message": "KARVENTER Backend API Sorunsuz Çalışıyor!"}
 
-@app.post("/api/products", response_model=schemas.ProductResponse, tags=["Products"])
+@app.post("/api/products", response_model=schemas.ProductResponse, status_code=201, tags=["Products"])
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
     db_product = models.Product(**product.model_dump())
     db.add(db_product)
@@ -30,7 +28,11 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
     db.refresh(db_product)
     return db_product
 
-@app.post("/api/markets", tags=["Markets"])
+@app.get("/api/products", tags=["Products"])
+def get_products(db: Session = Depends(get_db)):
+    return db.query(models.Product).all()
+
+@app.post("/api/markets", status_code=201, tags=["Markets"])
 def create_market(name: str, city: str, db: Session = Depends(get_db)):
     db_market = models.Market(name=name, city=city)
     db.add(db_market)
@@ -38,8 +40,14 @@ def create_market(name: str, city: str, db: Session = Depends(get_db)):
     db.refresh(db_market)
     return db_market
 
-@app.post("/api/stocks", response_model=schemas.StockResponse, tags=["Inventory Management"])
+@app.post("/api/stocks", response_model=schemas.StockResponse, status_code=201, tags=["Inventory Management"])
 def create_stock(stock: schemas.StockCreate, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.product_id == stock.product_id).first()
+    market = db.query(models.Market).filter(models.Market.market_id == stock.market_id).first()
+
+    if not product or not market:
+        raise HTTPException(status_code=404, detail="Ürün veya şube bulunamadı")
+
     db_stock = models.Stock(**stock.model_dump())
     db.add(db_stock)
     db.commit()
@@ -48,7 +56,6 @@ def create_stock(stock: schemas.StockCreate, db: Session = Depends(get_db)):
 
 @app.get("/api/stocks", tags=["Inventory Management"])
 def get_all_stocks(db: Session = Depends(get_db)):
-    """Gerçek veritabanından ürün ve şube eşleştirmeli stok durumunu getirir"""
     stocks = db.query(models.Stock).all()
     result = []
     
@@ -72,7 +79,7 @@ def get_all_stocks(db: Session = Depends(get_db)):
                 "product_name": product_name,
                 "category": getattr(product, 'category', '-'),
                 "market_name": getattr(market, 'name', '-'),
-                "city": getattr(market, 'location', getattr(market, 'city', '-')),
+                "city": getattr(market, 'city', '-'),
                 "quantity": stock.quantity,
                 "min_stock_level": min_level,
                 "status": status
@@ -82,41 +89,24 @@ def get_all_stocks(db: Session = Depends(get_db)):
 
 @app.get("/api/reports/z-report", tags=["Reports & Analytics"])
 def get_z_report(db: Session = Depends(get_db)):
-    """Veritabanındaki gerçek kayıt sayısına göre dinamik Z-Raporu hesaplar"""
     try:
-        stock_count = db.query(models.Stock).count()
-        product_count = db.query(models.Product).count()
+        stocks = db.query(models.Stock).all()
+        base_profit = 0.0
         
-        base_profit = (stock_count * 1500) + (product_count * 2500)
-        
+        for stock in stocks:
+            product = db.query(models.Product).filter(models.Product.product_id == stock.product_id).first()
+            if product:
+                unit_price = getattr(product, 'unit_price', 0.0)
+                profit_margin = getattr(product, 'profit_margin', 0.0)
+                base_profit += (stock.quantity * unit_price * profit_margin)
+                
         return {
             "success": True,
             "financials": {
-                "total_organic_profit": base_profit,
-                "total_optimized_profit": base_profit + (base_profit * 0.15),
-                "net_ai_gain": base_profit * 0.15
+                "organik_kar": round(base_profit, 2),
+                "optimize_kar": round(base_profit + (base_profit * 0.15), 2),
+                "net_ai_kazanci": round(base_profit * 0.15, 2)
             }
         }
     except Exception as e:
-        return {"success": False, "error": str(e)}
-
-@app.get("/api/forecast", tags=["AI & Analytics"])
-def get_ai_forecasts(db: Session = Depends(get_db)):
-    """Gerçek veritabanındaki stoklara dayalı dinamik AI tahmin sonuçları üretir."""
-    stocks = db.query(models.Stock).all()
-    result = []
-    
-    for stock in stocks:
-        product = db.query(models.Product).filter(models.Product.product_id == stock.product_id).first()
-        market = db.query(models.Market).filter(models.Market.market_id == stock.market_id).first()
-        
-        if product and market:
-            product_name = getattr(product, 'product_name', getattr(product, 'name', 'Ürün'))
-            result.append({
-                "product_name": product_name,
-                "market_name": getattr(market, 'name', 'Şube'),
-                "predicted_sales": int(stock.quantity * 1.2) + 50,
-                "confidence_score": f"%{85 + (stock.quantity % 10)}"
-            })
-            
-    return {"success": True, "data": result}
+        raise HTTPException(status_code=500, detail=str(e))
