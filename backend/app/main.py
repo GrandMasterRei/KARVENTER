@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import get_db, engine
+from app.ai_engine import talep_tahmini_uret, stok_onerisi_uret
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -110,3 +111,46 @@ def get_z_report(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/ai/tahmin/{urun_id}/{sube_id}")
+def ai_talep_tahmini(urun_id: int, sube_id: int, db: Session = Depends(get_db)):
+    """Belirtilen ürün ve şube için 7 günlük AI talep tahmini döndürür."""
+    from app.models import Sale, Product
+
+    # Ürünü getir
+    urun = db.query(Product).filter(Product.product_id == urun_id).first()
+    if not urun:
+        raise HTTPException(status_code=404, detail="Ürün bulunamadı")
+
+    # Son 14 günlük satış geçmişini getir
+    satislar = db.query(Sale).filter(
+        Sale.product_id == urun_id,
+        Sale.market_id == sube_id
+    ).order_by(Sale.sale_date.desc()).limit(14).all()
+
+    satis_gecmisi = [
+        {"tarih": str(s.sale_date)[:10], "adet": s.quantity}
+        for s in satislar
+    ]
+
+    return talep_tahmini_uret(urun.product_name, urun.category, satis_gecmisi)
+
+
+@app.get("/api/ai/stok-onerileri")
+def ai_stok_onerileri(db: Session = Depends(get_db)):
+    """Kritik stok seviyesindeki ürünler için AI yenileme önerisi döndürür."""
+    from app.models import Stock, Product
+
+    # Minimum seviyenin altındaki stokları bul
+    stoklar = db.query(Stock, Product).join(Product, Stock.product_id == Product.product_id).all()
+    kritik_stoklar = [
+        {
+            "urun": product.product_name,
+            "mevcut_stok": stock.quantity,
+            "minimum_seviye": product.min_stock_level,
+            "sube_id": stock.market_id
+        }
+        for stock, product in stoklar if stock.quantity < product.min_stock_level
+    ]
+
+    return stok_onerisi_uret(kritik_stoklar)
