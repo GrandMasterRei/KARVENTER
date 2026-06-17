@@ -19,7 +19,7 @@ Bir sonraki 7 gün için günlük talep tahminini SADECE JSON olarak ver:
             "prompt": prompt,
             "stream": False,
             "format": "json"
-        }, timeout=30)
+        }, timeout=120)
         sonuc = yanit.json()
         return json.loads(sonuc["response"])
     except Exception as hata:
