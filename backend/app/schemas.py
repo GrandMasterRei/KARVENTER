@@ -38,3 +38,16 @@ class StockResponse(StockBase):
     stock_id: int
     last_updated: datetime
     model_config = ConfigDict(from_attributes=True)
+
+class SaleBase(BaseModel):
+    product_id: int
+    market_id: int
+    quantity: int
+
+class SaleCreate(SaleBase):
+    pass
+
+class SaleResponse(SaleBase):
+    sale_id: int
+    sale_date: datetime
+    model_config = ConfigDict(from_attributes=True)
