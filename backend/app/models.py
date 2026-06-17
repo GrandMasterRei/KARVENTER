@@ -27,3 +27,12 @@ class Stock(Base):
     market_id = Column(Integer, ForeignKey("markets.market_id"), nullable=False)
     quantity = Column(Integer, nullable=False, default=0)
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now())
+
+class Sale(Base):
+    __tablename__ = "sales"
+    
+    sale_id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.product_id"), nullable=False)
+    market_id = Column(Integer, ForeignKey("markets.market_id"), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    sale_date = Column(DateTime, default=func.now())

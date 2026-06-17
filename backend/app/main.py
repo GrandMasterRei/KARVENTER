@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from . import models, schemas
 from .database import get_db, engine
+from .ai_engine import talep_tahmini_uret, stok_onerisi_uret
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -110,3 +111,51 @@ def get_z_report(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sales", status_code=201, tags=["Sales"])
+def create_sale(sale: schemas.SaleCreate, db: Session = Depends(get_db)):
+    """Satış kaydı oluşturur."""
+    db_sale = models.Sale(**sale.model_dump())
+    db.add(db_sale)
+    db.commit()
+    db.refresh(db_sale)
+    return db_sale
+
+@app.get("/api/sales", tags=["Sales"])
+def get_sales(db: Session = Depends(get_db)):
+    """Tüm satış kayıtlarını listeler."""
+    return db.query(models.Sale).all()
+
+@app.get("/api/ai/tahmin/{urun_id}/{sube_id}", tags=["AI"])
+def ai_talep_tahmini(urun_id: int, sube_id: int, db: Session = Depends(get_db)):
+    """Belirtilen ürün ve şube için 7 günlük AI talep tahmini döndürür."""
+    urun = db.query(models.Product).filter(models.Product.product_id == urun_id).first()
+    if not urun:
+        raise HTTPException(status_code=404, detail="Ürün bulunamadı")
+
+    satislar = db.query(models.Sale).filter(
+        models.Sale.product_id == urun_id,
+        models.Sale.market_id == sube_id
+    ).order_by(models.Sale.sale_date.desc()).limit(14).all()
+
+    satis_gecmisi = [
+        {"tarih": str(s.sale_date)[:10], "adet": s.quantity}
+        for s in satislar
+    ]
+
+    return talep_tahmini_uret(urun.product_name, urun.category, satis_gecmisi)
+
+@app.get("/api/ai/stok-onerileri", tags=["AI"])
+def ai_stok_onerileri(db: Session = Depends(get_db)):
+    """Kritik stok seviyesindeki ürünler için AI yenileme önerisi döndürür."""
+    stoklar = db.query(models.Stock).join(models.Product).all()
+    kritik_stoklar = [
+        {
+            "urun": s.product.product_name,
+            "mevcut_stok": s.quantity,
+            "minimum_seviye": s.product.min_stock_level,
+            "sube_id": s.market_id
+        }
+        for s in stoklar if s.quantity < s.product.min_stock_level
+    ]
+    return stok_onerisi_uret(kritik_stoklar)
