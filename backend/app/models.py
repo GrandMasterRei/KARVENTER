@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
+from datetime import datetime
 from .database import Base
 
 class Product(Base):
@@ -27,3 +29,14 @@ class Stock(Base):
     market_id = Column(Integer, ForeignKey("markets.market_id"), nullable=False)
     quantity = Column(Integer, nullable=False, default=0)
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now())
+
+class Sale(Base):
+    __tablename__ = "sales"
+
+    sale_id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.product_id"))
+    market_id = Column(Integer, ForeignKey("markets.market_id"))
+    quantity = Column(Integer, nullable=False)
+    sale_date = Column(DateTime, default=datetime.utcnow)
+    product = relationship("Product")
+    market = relationship("Market")
