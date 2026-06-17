@@ -36,3 +36,11 @@ class Sale(Base):
     market_id = Column(Integer, ForeignKey("markets.market_id"), nullable=False)
     quantity = Column(Integer, nullable=False)
     sale_date = Column(DateTime, default=func.now())
+
+class Kullanici(Base):
+    __tablename__ = "kullanicilar"
+    
+    kullanici_id = Column(Integer, primary_key=True, index=True)
+    kullanici_adi = Column(String(50), unique=True, nullable=False)
+    sifre_hash = Column(String(255), nullable=False)
+    rol = Column(String(20), default="staff")

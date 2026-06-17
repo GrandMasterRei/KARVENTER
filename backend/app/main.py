@@ -1,3 +1,5 @@
+from .auth import sifrele, token_olustur, mevcut_kullanici, admin_gerektir
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -159,3 +161,32 @@ def ai_stok_onerileri(db: Session = Depends(get_db)):
         for s in stoklar if s.quantity < s.product.min_stock_level
     ]
     return stok_onerisi_uret(kritik_stoklar)
+
+@app.post("/api/auth/kayit", status_code=201, tags=["Auth"])
+def kayit(kullanici_adi: str, sifre: str, rol: str = "staff", db: Session = Depends(get_db)):
+    """Yeni kullanıcı kaydı oluşturur."""
+    mevcut = db.query(models.Kullanici).filter(
+        models.Kullanici.kullanici_adi == kullanici_adi
+    ).first()
+    if mevcut:
+        raise HTTPException(status_code=400, detail="Kullanıcı adı zaten var")
+    yeni = models.Kullanici(
+        kullanici_adi=kullanici_adi,
+        sifre_hash=sifrele(sifre),
+        rol=rol
+    )
+    db.add(yeni)
+    db.commit()
+    return {"mesaj": "Kullanıcı oluşturuldu"}
+
+@app.post("/api/auth/giris", tags=["Auth"])
+def giris(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """Kullanıcı girişi, JWT token döndürür."""
+    kullanici = db.query(models.Kullanici).filter(
+        models.Kullanici.kullanici_adi == form.username
+    ).first()
+    from .auth import sifre_dogrula
+    if not kullanici or not sifre_dogrula(form.password, kullanici.sifre_hash):
+        raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre yanlış")
+    token = token_olustur({"sub": kullanici.kullanici_adi, "rol": kullanici.rol})
+    return {"access_token": token, "token_type": "bearer"}
