@@ -190,3 +190,45 @@ def giris(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
         raise HTTPException(status_code=401, detail="Kullanıcı adı veya şifre yanlış")
     token = token_olustur({"sub": kullanici.kullanici_adi, "rol": kullanici.rol})
     return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/api/transfers/suggestions", tags=["Transfers"])
+def transfer_onerileri(db: Session = Depends(get_db)):
+    """Stok dengesizliklerini analiz ederek şubeler arası transfer önerisi üretir."""
+    stoklar = db.query(models.Stock).join(models.Product).join(models.Market).all()
+    
+    # Ürün bazında şube stoklarını grupla
+    urun_sube_map = {}
+    for stok in stoklar:
+        urun_id = stok.product_id
+        if urun_id not in urun_sube_map:
+            urun_sube_map[urun_id] = []
+        urun_sube_map[urun_id].append({
+            "sube_id": stok.market_id,
+            "sube_adi": stok.market.name,
+            "urun_adi": stok.product.product_name,
+            "miktar": stok.quantity,
+            "minimum": stok.product.min_stock_level
+        })
+    
+    oneriler = []
+    for urun_id, subeler in urun_sube_map.items():
+        kritik = [s for s in subeler if s["miktar"] < s["minimum"]]
+        fazla = [s for s in subeler if s["miktar"] > s["minimum"] * 2]
+        
+        for k in kritik:
+            for f in fazla:
+                if f["sube_id"] != k["sube_id"]:
+                    transfer_miktari = min(
+                        f["miktar"] - f["minimum"],
+                        k["minimum"] - k["miktar"]
+                    )
+                    if transfer_miktari > 0:
+                        oneriler.append({
+                            "urun": k["urun_adi"],
+                            "kaynak_sube": f["sube_adi"],
+                            "hedef_sube": k["sube_adi"],
+                            "oneri_miktar": transfer_miktari,
+                            "aciklama": f"{f['sube_adi']} fazla stoktan {k['sube_adi']} kritik stoğa transfer"
+                        })
+    
+    return {"oneriler": oneriler, "toplam": len(oneriler)}
