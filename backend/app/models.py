@@ -19,6 +19,8 @@ class Market(Base):
     name = Column(String(100), nullable=False)
     city = Column(String(50))
 
+from sqlalchemy.orm import relationship
+
 class Stock(Base):
     __tablename__ = "stocks"
     
@@ -27,6 +29,8 @@ class Stock(Base):
     market_id = Column(Integer, ForeignKey("markets.market_id"), nullable=False)
     quantity = Column(Integer, nullable=False, default=0)
     last_updated = Column(DateTime, default=func.now(), onupdate=func.now())
+    product = relationship("Product")
+    market = relationship("Market")
 
 class Sale(Base):
     __tablename__ = "sales"

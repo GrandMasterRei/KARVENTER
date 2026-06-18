@@ -52,3 +52,43 @@ Her urun icin SADECE JSON listesi dondur:
         return parsed if isinstance(parsed, list) else [parsed]
     except Exception as hata:
         return [{"hata": str(hata), "aciliyet": "dusuk"}]
+
+def transfer_onerisi_uret(urun_adi: str, sube_verileri: list) -> dict:
+    """Şube satış verilerini analiz ederek akıllı transfer önerisi üretir."""
+    prompt = f"""Sen bir market zinciri stok optimizasyon yapay zekasısın.
+Aşağıdaki ürün için şubelerin satış ve stok verileri verildi.
+Hangi şubeden hangi şubeye kaç adet transfer yapılmalı analiz et.
+
+Ürün: {urun_adi}
+Şube verileri: {json.dumps(sube_verileri, ensure_ascii=False)}
+
+Kuralar:
+- Yüksek satış hızına sahip şube daha fazla stok hakkı kazanır
+- Düşük satış hızlı şubedeki fazla stok yüksek satışlı şubeye gitmeli
+- Bozulma ve israf önlenmeli
+
+SADECE JSON formatında yanıt ver:
+{{
+  "transfer_et": true,
+  "kaynak_sube": "...",
+  "hedef_sube": "...", 
+  "miktar": 0,
+  "kurtarilan_kar_tahmini": 0.0,
+  "aciklama": "..."
+}}"""
+
+    try:
+        yanit = requests.post(OLLAMA_URL, json={
+            "model": MODEL_ADI,
+            "prompt": prompt,
+            "stream": False,
+            "format": "json"
+        }, timeout=120)
+        sonuc = yanit.json()
+        return json.loads(sonuc["response"])
+    except Exception as hata:
+        return {
+            "transfer_et": False,
+            "hata": str(hata),
+            "aciklama": "Ollama bağlantı hatası"
+        }
