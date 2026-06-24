@@ -1,0 +1,21 @@
+﻿product_id,Product ID,product_name,category,category_original,unit_type,barcode,unit_price,profit_margin,min_stock_level,is_perishable,shelf_life_days,is_active
+1,P0001,Tam Yağlı Süt 1L,Market,Groceries,adet,8690000000012,37.22,0.22,40,True,10,True
+2,P0002,Laktosuz Süt 1L,Market,Groceries,adet,8690000000002,42.72,0.22,40,True,14,True
+3,P0003,Elma 1kg,Market,Clothing,kg,8690000000609,76.36,0.22,40,True,20,True
+4,P0004,Patates 2kg,Market,Groceries,adet,8690000000004,45.31,0.22,40,False,180,True
+5,P0005,Portakal Suyu 1L,Market,Groceries,adet,8690000000005,50.75,0.22,40,False,180,True
+6,P0006,Pirinç 1kg,Market,Groceries,adet,8690000000006,46.91,0.22,40,False,180,True
+7,P0007,Makarna 500g,Market,Groceries,adet,8690000000007,35.67,0.22,40,False,180,True
+8,P0008,Yoğurt 1kg,Market,Groceries,adet,8690000000008,67.07,0.22,40,True,12,True
+9,P0009,Beyaz Peynir 500g,Market,Groceries,adet,8690000000009,83.05,0.22,40,True,30,True
+10,P0010,Yumurta 15li,Market,Groceries,adet,8690000000010,66.47,0.22,40,True,28,True
+11,P0011,Tavuk Göğüs 1kg,Market,Electronics,kg,8690000000011,99.62,0.22,40,True,5,True
+12,P0012,Dana Kıyma 500g,Market,Electronics,kg,8690001000012,93.2,0.22,40,True,3,True
+13,P0013,Zeytinyağı 1L,Market,Groceries,adet,8690000000013,44.3,0.22,40,False,180,True
+14,P0014,Ayçiçek Yağı 1L,Market,Furniture,adet,8690000000014,118.6,0.22,40,False,180,True
+15,P0015,Toz Şeker 1kg,Market,Groceries,adet,8690000000015,63.75,0.22,40,False,180,True
+16,P0016,Un 1kg,Market,Clothing,adet,8690000000016,72.66,0.22,40,False,180,True
+17,P0017,Çay 500g,Market,Toys,adet,8690000000017,56.56,0.22,40,False,180,True
+18,P0018,Kahve 250g,Market,Clothing,adet,8690000000018,76.82,0.22,40,False,180,True
+19,P0019,Salatalık 1kg,Market,Clothing,kg,8690000000019,86.72,0.22,40,True,7,True
+20,P0020,Domates 1kg,Market,Furniture,kg,8690000000020,90.75,0.22,40,True,8,True

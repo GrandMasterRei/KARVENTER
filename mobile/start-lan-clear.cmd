@@ -1,0 +1,15 @@
+@echo off
+cd /d "%~dp0"
+set CI=
+set REACT_NATIVE_PACKAGER_HOSTNAME=192.168.1.111
+set EXPO_PUBLIC_API_URL=http://192.168.1.111:8000
+set EXPO_OFFLINE=1
+set EXPO_NO_TELEMETRY=1
+set EXPO_NO_TELEMETRY_DETACH=1
+set EXPO_NO_GIT_STATUS=1
+set EXPO_NO_TYPESCRIPT_SETUP=1
+set EXPO_NO_WEB_SETUP=1
+echo KARVENTER Mobil temiz cache ile baslatiliyor...
+echo Expo URL: exp://192.168.1.111:8081
+echo API URL : http://192.168.1.111:8000
+npx expo start --lan --clear

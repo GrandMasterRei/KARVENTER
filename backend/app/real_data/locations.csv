@@ -1,0 +1,6 @@
+﻿location_id,Store ID,location_name,location_type,city,region,is_active
+1,S001,KARVENTER Kadıköy,Şube,İstanbul,North,True
+2,S002,KARVENTER Ümraniye,Şube,İstanbul,South,True
+3,S003,KARVENTER Beşiktaş,Şube,İstanbul,East,True
+4,S004,KARVENTER İstanbul Depo,Depo,İstanbul,West,True
+5,S005,KARVENTER Ankara Depo,Depo,Ankara,North,True

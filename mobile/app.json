@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "KARVENTER",
+    "slug": "karventer-mobile",
+    "version": "1.0.18",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "karventer",
+    "splash": {
+      "backgroundColor": "#2563EB",
+      "resizeMode": "contain",
+      "image": "./assets/icon.png"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.karventer.mobile"
+    },
+    "android": {
+      "package": "com.karventer.mobile",
+      "versionCode": 6,
+      "adaptiveIcon": {
+        "backgroundColor": "#2563EB",
+        "foregroundImage": "./assets/icon.png"
+      },
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.111:8000"
+    },
+    "plugins": [
+      "./plugins/withAndroidCleartext",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "KARVENTER barkod tarama için kameraya erişir."
+        }
+      ]
+    ],
+    "icon": "./assets/icon.png"
+  }
+}

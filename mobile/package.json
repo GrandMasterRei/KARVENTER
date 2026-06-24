@@ -1,0 +1,33 @@
+{
+  "name": "karventer-mobile",
+  "version": "1.0.18",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "start:lan": "expo start --lan",
+    "start:clear": "expo start --lan --clear",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "export:android": "expo export --platform android --clear",
+    "build:apk": "eas build -p android --profile preview --clear-cache"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "axios": "1.7.9",
+    "expo": "~51.0.39",
+    "expo-status-bar": "~1.12.1",
+    "react": "18.2.0",
+    "react-native": "0.74.5",
+    "@expo/vector-icons": "14.1.0",
+    "expo-camera": "~15.0.16"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "browserslist": "^4.25.0"
+  },
+  "overrides": {
+    "browserslist": "^4.25.0"
+  }
+}

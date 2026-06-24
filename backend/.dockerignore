@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+app/ml_models/*.joblib
+app/ml_models/*.zip
+app/ml_models/*.pkl

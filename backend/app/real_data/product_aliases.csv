@@ -1,0 +1,75 @@
+﻿alias_id,product_id,alias,is_active
+1,1,tam yağlı süt 1l,True
+2,1,tam yağlı süt,True
+3,1,tam yagli sut,True
+4,1,süt,True
+5,1,sut,True
+6,1,normal süt,True
+7,1,1 litre süt,True
+8,2,laktosuz süt 1l,True
+9,2,laktosuz süt,True
+10,2,laktozsuz süt,True
+11,2,laktosuz sut,True
+12,2,laktozsuz sut,True
+13,2,süt,True
+14,2,sut,True
+15,3,elma 1kg,True
+16,3,elma,True
+17,3,kırmızı elma,True
+18,3,yesil elma,True
+19,3,yeşil elma,True
+20,4,patates 2kg,True
+21,4,patates,True
+22,5,portakal suyu 1l,True
+23,5,portakal suyu,True
+24,5,meyve suyu,True
+25,5,portakal,True
+26,6,pirinç 1kg,True
+27,6,pirinç,True
+28,6,pirinc,True
+29,7,makarna 500g,True
+30,7,makarna,True
+31,8,yoğurt 1kg,True
+32,8,yoğurt,True
+33,8,yogurt,True
+34,9,beyaz peynir 500g,True
+35,9,beyaz peynir,True
+36,9,peynir,True
+37,10,yumurta 15li,True
+38,10,yumurta,True
+39,11,tavuk göğüs 1kg,True
+40,11,tavuk,True
+41,11,tavuk göğüs,True
+42,11,tavuk gogus,True
+43,12,dana kıyma 500g,True
+44,12,kıyma,True
+45,12,kiyma,True
+46,12,dana kıyma,True
+47,12,dana kiyma,True
+48,13,zeytinyağı 1l,True
+49,13,zeytinyağı,True
+50,13,zeytinyagi,True
+51,14,ayçiçek yağı 1l,True
+52,14,ayçiçek yağı,True
+53,14,aycicek yagi,True
+54,14,sıvı yağ,True
+55,14,sivi yag,True
+56,14,yağ,True
+57,14,yag,True
+58,15,toz şeker 1kg,True
+59,15,şeker,True
+60,15,seker,True
+61,15,toz şeker,True
+62,15,toz seker,True
+63,16,un 1kg,True
+64,16,un,True
+65,17,çay 500g,True
+66,17,çay,True
+67,17,cay,True
+68,18,kahve 250g,True
+69,18,kahve,True
+70,19,salatalık 1kg,True
+71,19,salatalık,True
+72,19,salatalik,True
+73,20,domates 1kg,True
+74,20,domates,True
