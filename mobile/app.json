@@ -2,7 +2,7 @@
   "expo": {
     "name": "KARVENTER",
     "slug": "karventer-mobile",
-    "version": "1.0.18",
+    "version": "1.0.19",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "karventer",
@@ -20,17 +20,22 @@
     },
     "android": {
       "package": "com.karventer.mobile",
-      "versionCode": 6,
+      "versionCode": 7,
       "adaptiveIcon": {
         "backgroundColor": "#2563EB",
         "foregroundImage": "./assets/icon.png"
       },
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "extra": {
-      "apiUrl": "http://192.168.1.111:8000"
+      "apiUrl": "https://sep-examines-cms-layout.trycloudflare.com",
+      "eas": {
+        "projectId": "86b19077-b94b-4f04-be07-386c5fdf27ce"
+      }
     },
     "plugins": [
       "./plugins/withAndroidCleartext",

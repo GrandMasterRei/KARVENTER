@@ -69,3 +69,5 @@ mobile/.env.*
 # ML model binaries - local demo only
 backend/app/ml_models/*.joblib
 backend/app/ml_models/*.zip
+cloudflared.exe
+frontend/.env.production
