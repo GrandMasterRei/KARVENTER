@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://exemption-howard-greene-attend.trycloudflare.com ';
+﻿const BACKEND_ORIGIN = 'https://advertiser-valley-anderson-seat.trycloudflare.com';
 
 function corsHeaders() {
   return {
