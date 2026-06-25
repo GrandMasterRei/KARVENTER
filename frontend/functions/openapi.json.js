@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://charter-mel-theme-solution.trycloudflare.com';
+﻿const BACKEND_ORIGIN = 'https://entered-oliver-selecting-sender.trycloudflare.com/api/users';
 
 export async function onRequest({ request }) {
   const targetUrl = new URL('/openapi.json', BACKEND_ORIGIN.replace(/\/$/, ''));

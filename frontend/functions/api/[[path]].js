@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://charter-mel-theme-solution.trycloudflare.com';
+﻿const BACKEND_ORIGIN = 'https://entered-oliver-selecting-sender.trycloudflare.com/api/users';
 
 function corsHeaders() {
   return {
