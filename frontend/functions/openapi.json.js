@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://advertiser-valley-anderson-seat.trycloudflare.com';
+﻿const BACKEND_ORIGIN = 'https://charter-mel-theme-solution.trycloudflare.com';
 
 export async function onRequest({ request }) {
   const targetUrl = new URL('/openapi.json', BACKEND_ORIGIN.replace(/\/$/, ''));
