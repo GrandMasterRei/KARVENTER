@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -73,8 +73,8 @@ api.interceptors.request.use(async (config) => {
 function normalize(value = '') {
   return String(value)
     .toLocaleLowerCase('tr-TR')
-    .replaceAll('Ä±', 'i')
-    .replaceAll('Ä°', 'i')
+    .replaceAll('ı', 'i')
+    .replaceAll('İ', 'i')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 }
@@ -105,16 +105,16 @@ function normalizeUserPayload(user) {
   };
 }
 
-function apiErrorMessage(error, fallback = 'Ä°ÅŸlem tamamlanamadÄ±.') {
+function apiErrorMessage(error, fallback = 'İşlem tamamlanamadı.') {
   const detail = error?.response?.data?.detail;
   if (typeof detail === 'string') return detail;
   if (Array.isArray(detail) && detail.length > 0) return detail.map((item) => item.msg || item.message || String(item)).join(' ');
-  if (!error?.response) return `Backend baÄŸlantÄ±sÄ± kurulamadÄ±. API adresi: ${resolvedApiUrl}`;
+  if (!error?.response) return `Backend bağlantısı kurulamadı. API adresi: ${resolvedApiUrl}`;
   return fallback;
 }
 
 function productName(item) {
-  return item?.product_name || item?.name || item?.product?.product_name || item?.product?.name || 'ÃœrÃ¼n';
+  return item?.product_name || item?.name || item?.product?.product_name || item?.product?.name || 'Ürün';
 }
 
 function productSearchText(item) {
@@ -140,9 +140,9 @@ function codeVariants(value) {
   const variants = new Set([normalize(raw)]);
   if (digits) {
     variants.add(normalize(digits));
-    // EAN-13 barkodlar okutulunca 13 hane dÃ¶ner; seed/Ã¼rÃ¼n kaydÄ± bazÄ± durumlarda
-    // ilk 12 haneyi tutabilir. Bu eÅŸleÅŸtirme gerÃ§ek barkod alanÄ± varsa onu,
-    // yoksa aynÄ± barkodun checksum'sÄ±z halini yakalar.
+    // EAN-13 barkodlar okutulunca 13 hane döner; seed/ürün kaydı bazı durumlarda
+    // ilk 12 haneyi tutabilir. Bu eşleştirme gerçek barkod alanı varsa onu,
+    // yoksa aynı barkodun checksum'sız halini yakalar.
     if (digits.length === 13) variants.add(normalize(digits.slice(0, 12)));
     if (digits.length === 12) variants.add(normalize(`0${digits}`));
   }
@@ -157,29 +157,29 @@ function findStockByCode(stocks, code) {
 
 function statusLabel(status) {
   const map = {
-    suggested: 'Ã–neri',
+    suggested: 'Öneri',
     pending: 'Bekliyor',
-    approved: 'OnaylandÄ±',
+    approved: 'Onaylandı',
     rejected: 'Reddedildi',
-    completed: 'TamamlandÄ±',
-    cancelled: 'Ä°ptal',
-    open: 'AÃ§Ä±k',
+    completed: 'Tamamlandı',
+    cancelled: 'İptal',
+    open: 'Açık',
     reviewed: 'Okundu',
-    resolved: 'KapalÄ±',
-    dismissed: 'Yok SayÄ±ldÄ±',
+    resolved: 'Kapalı',
+    dismissed: 'Yok Sayıldı',
     active: 'Aktif',
-    in_progress: 'SÃ¼rÃ¼yor',
-    near_expiry: 'SKT YakÄ±n',
-    expired: 'SKT GeÃ§miÅŸ',
-    depleted: 'TÃ¼kendi',
+    in_progress: 'Sürüyor',
+    near_expiry: 'SKT Yakın',
+    expired: 'SKT Geçmiş',
+    depleted: 'Tükendi',
     critical: 'Kritik',
-    high: 'YÃ¼ksek',
+    high: 'Yüksek',
     medium: 'Orta',
-    low: 'DÃ¼ÅŸÃ¼k',
+    low: 'Düşük',
     staff_request: 'Personel Talebi',
     missing_stock_request: 'Eksik Stok Talebi',
     create_transfer: 'Transfer',
-    update_stock: 'Stok GÃ¼ncelleme'
+    update_stock: 'Stok Güncelleme'
   };
   return map[status] || status || '-';
 }
@@ -197,13 +197,13 @@ function requestStatusLabel(status) {
   const map = {
     open: 'Bekliyor',
     pending: 'Bekliyor',
-    reviewed: 'Ä°ncelendi',
-    approved: 'OnaylandÄ±',
-    resolved: 'TamamlandÄ±',
-    completed: 'TamamlandÄ±',
+    reviewed: 'İncelendi',
+    approved: 'Onaylandı',
+    resolved: 'Tamamlandı',
+    completed: 'Tamamlandı',
     dismissed: 'Reddedildi',
     rejected: 'Reddedildi',
-    cancelled: 'Ä°ptal'
+    cancelled: 'İptal'
   };
   return map[key] || statusLabel(status);
 }
@@ -258,20 +258,20 @@ function isMobileVisibleAlert(item, user) {
 
 
 function isAdminUser(user) {
-  return ['admin', 'yonetici', 'yÃ¶netici'].includes(normalize(user?.role || ''));
+  return ['admin', 'yonetici', 'yönetici'].includes(normalize(user?.role || ''));
 }
 
 function displayNameOf(user) {
-  return user?.full_name || user?.username || 'KullanÄ±cÄ±';
+  return user?.full_name || user?.username || 'Kullanıcı';
 }
 
 function profileScopeLabel(user) {
-  if (isAdminUser(user)) return 'KARVENTER YÃ¶netici';
+  if (isAdminUser(user)) return 'KARVENTER Yönetici';
   return user?.market_name || 'Lokasyon';
 }
 
 function profileRoleLabel(user) {
-  if (isAdminUser(user)) return 'YÃ¶netici';
+  if (isAdminUser(user)) return 'Yönetici';
   return 'Personel';
 }
 
@@ -405,10 +405,10 @@ function Badge({ label, tone = 'blue', style }) {
   return <View style={[styles.badge, { backgroundColor: palette.bg }, style]}><Text style={[styles.badgeText, { color: palette.fg }]}>{label}</Text></View>;
 }
 
-function Empty({ title = 'KayÄ±t yok', text }) {
+function Empty({ title = 'Kayıt yok', text }) {
   return (
     <View style={styles.empty}>
-      <Text style={styles.emptyMark}>â€”</Text>
+      <Text style={styles.emptyMark}>—</Text>
       <Text style={styles.emptyTitle}>{title}</Text>
       {text ? <Text style={styles.emptyText}>{text}</Text> : null}
     </View>
@@ -426,7 +426,7 @@ export default function App() {
   const [booting, setBooting] = useState(true);
 
   useEffect(() => {
-    // Demo ve sÄ±nav akÄ±ÅŸÄ± iÃ§in uygulama her aÃ§Ä±lÄ±ÅŸta giriÅŸ ekranÄ±ndan baÅŸlar.
+    // Demo ve sınav akışı için uygulama her açılışta giriş ekranından başlar.
     Promise.all([
       AsyncStorage.removeItem('karventer_mobile_token'),
       AsyncStorage.removeItem('karventer_mobile_user')
@@ -452,7 +452,7 @@ function LoginScreen({ onLogin }) {
 
   async function submit() {
     if (!username.trim() || !password.trim()) {
-      Alert.alert('Eksik bilgi', 'KullanÄ±cÄ± adÄ± ve ÅŸifre gir.');
+      Alert.alert('Eksik bilgi', 'Kullanıcı adı ve şifre gir.');
       return;
     }
     setLoading(true);
@@ -467,7 +467,7 @@ function LoginScreen({ onLogin }) {
       await AsyncStorage.setItem('karventer_mobile_user', JSON.stringify(normalizedUser));
       onLogin(normalizedUser);
     } catch (error) {
-      Alert.alert('GiriÅŸ baÅŸarÄ±sÄ±z', apiErrorMessage(error, 'KullanÄ±cÄ± adÄ± veya ÅŸifre hatalÄ±.'));
+      Alert.alert('Giriş başarısız', apiErrorMessage(error, 'Kullanıcı adı veya şifre hatalı.'));
     } finally {
       setLoading(false);
     }
@@ -482,7 +482,7 @@ function LoginScreen({ onLogin }) {
             <Text style={styles.loginBrandWeb}>KARVENTER</Text>
           </View>
           <View style={styles.loginForm}>
-            <Text style={styles.label}>KullanÄ±cÄ± adÄ±</Text>
+            <Text style={styles.label}>Kullanıcı adı</Text>
             <View style={styles.loginInputWrap}>
               <Feather name="user" size={19} color={colors.softText} />
               <TextInput
@@ -491,11 +491,11 @@ function LoginScreen({ onLogin }) {
                 autoCapitalize="none"
                 autoCorrect={false}
                 style={styles.loginInput}
-                placeholder="KullanÄ±cÄ± adÄ±nÄ±zÄ± girin"
+                placeholder="Kullanıcı adınızı girin"
                 placeholderTextColor={colors.softText}
               />
             </View>
-            <Text style={styles.label}>Åifre</Text>
+            <Text style={styles.label}>Şifre</Text>
             <View style={styles.loginInputWrap}>
               <Feather name="lock" size={19} color={colors.softText} />
               <TextInput
@@ -503,11 +503,11 @@ function LoginScreen({ onLogin }) {
                 onChangeText={setPassword}
                 secureTextEntry
                 style={styles.loginInput}
-                placeholder="Åifrenizi girin"
+                placeholder="Şifrenizi girin"
                 placeholderTextColor={colors.softText}
               />
             </View>
-            <Button title="GiriÅŸ Yap" onPress={submit} loading={loading} style={styles.loginButton} />
+            <Button title="Giriş Yap" onPress={submit} loading={loading} style={styles.loginButton} />
           </View>
         </View>
       </View>
@@ -535,7 +535,7 @@ function MainApp({ user, onLogout }) {
   useEffect(() => { loadTopStatus(); }, [loadTopStatus]);
 
   const title = admin ? {
-    home: 'YÃ¶netim Ã–zeti',
+    home: 'Yönetim Özeti',
     requests: 'Personel Talepleri',
     approvals: 'Onaylar',
     transfer: 'Transferler',
@@ -544,7 +544,7 @@ function MainApp({ user, onLogout }) {
     profile: 'Hesap'
   }[tab] : {
     home: 'Saha Kontrol',
-    stock: 'Stok SayÄ±mÄ±',
+    stock: 'Stok Sayımı',
     request: 'Talep',
     transfer: 'Transferler',
     assistant: 'KARVAI',
@@ -598,7 +598,7 @@ function BottomNav({ tab, setTab, admin = false }) {
     { key: 'assistant', label: 'KARVAI', icon: 'ai' }
   ];
   const adminItems = [
-    { key: 'home', label: 'Ã–zet', icon: 'grid' },
+    { key: 'home', label: 'Özet', icon: 'grid' },
     { key: 'requests', label: 'Talepler', icon: 'inbox' },
     { key: 'approvals', label: 'Onaylar', icon: 'check-square' },
     { key: 'transfer', label: 'Transfer', icon: 'repeat' },
@@ -666,19 +666,19 @@ function StaffHomeScreen({ user, setTab, refreshTop }) {
           key: `stock-${item.stock_id || item.product_id}`,
           tab: 'stock',
           title: productName(item),
-          text: `${Math.round(Number(item.quantity || 0))} adet â€¢ min ${item.min_stock ?? item.min_stock_level ?? item.product?.min_stock_level ?? '-'}`
+          text: `${Math.round(Number(item.quantity || 0))} adet • min ${item.min_stock ?? item.min_stock_level ?? item.product?.min_stock_level ?? '-'}`
         })),
         ...activeTransferRows.slice(0, 1).map((item) => ({
           key: `transfer-${item.transfer_id}`,
           tab: 'transfer',
-          title: item.product_name || item.product?.product_name || 'Transfer gÃ¶revi',
-          text: `${marketNameOf(item, 'source')} â†’ ${marketNameOf(item, 'target')}`
+          title: item.product_name || item.product?.product_name || 'Transfer görevi',
+          text: `${marketNameOf(item, 'source')} → ${marketNameOf(item, 'target')}`
         })),
         ...alertList.slice(0, 1).map((item) => ({
           key: `alert-${item.alert_id}`,
           tab: 'alerts',
           title: item.title || 'Bildirim',
-          text: item.message || item.market_name || 'AÃ§Ä±k bildirim'
+          text: item.message || item.market_name || 'Açık bildirim'
         }))
       ].slice(0, 4));
       refreshTop?.();
@@ -701,8 +701,8 @@ function StaffHomeScreen({ user, setTab, refreshTop }) {
         <Metric label="Bildirim" value={summary.open_alert_count} tone="blue" onPress={() => setTab('alerts')} />
       </View>
       <Card style={styles.actionCardCompact}>
-        <Text style={styles.cardTitle}>Ã–ncelikli Ä°ÅŸler</Text>
-        <Text style={styles.cardText}>Kartlardan ilgili ekrana geÃ§ebilir, acil kayÄ±tlarÄ± buradan takip edebilirsin.</Text>
+        <Text style={styles.cardTitle}>Öncelikli İşler</Text>
+        <Text style={styles.cardText}>Kartlardan ilgili ekrana geçebilir, acil kayıtları buradan takip edebilirsin.</Text>
         <View style={styles.miniList}>
           {priorityRows.map((item) => (
             <Pressable key={item.key} onPress={() => setTab(item.tab)} style={({ pressed }) => [styles.miniListItem, pressed && styles.buttonPressed]}>
@@ -710,7 +710,7 @@ function StaffHomeScreen({ user, setTab, refreshTop }) {
               <Text numberOfLines={1} style={styles.miniListText}>{item.text}</Text>
             </Pressable>
           ))}
-          {priorityRows.length === 0 ? <Text style={styles.cardText}>Åu anda acil saha iÅŸi gÃ¶rÃ¼nmÃ¼yor. Stok sayÄ±mÄ±, talep ve transfer iÅŸlemleri Ã¼st kartlardan yÃ¶netilebilir.</Text> : null}
+          {priorityRows.length === 0 ? <Text style={styles.cardText}>Şu anda acil saha işi görünmüyor. Stok sayımı, talep ve transfer işlemleri üst kartlardan yönetilebilir.</Text> : null}
         </View>
       </Card>
     </Screen>
@@ -761,7 +761,7 @@ function AdminHomeScreen({ user, setTab, refreshTop }) {
   return (
     <Screen refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}>
       <View style={styles.heroCardCompact}>
-        <Text style={styles.heroTitleCompact}>YÃ¶netim</Text>
+        <Text style={styles.heroTitleCompact}>Yönetim</Text>
       </View>
       <View style={styles.grid2Compact}>
         <Metric label="Talepler" value={summary.requests} tone="amber" onPress={() => setTab('requests')} />
@@ -772,19 +772,19 @@ function AdminHomeScreen({ user, setTab, refreshTop }) {
       <Card style={styles.actionCardCompact}>
         <View style={styles.rowCardNoMargin}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>Ã–ncelikli YÃ¶netim</Text>
+            <Text style={styles.cardTitle}>Öncelikli Yönetim</Text>
             <Text style={styles.cardText}>Bekleyen talepler, onaylar ve transferler</Text>
           </View>
-          <Badge label={summary.actions + summary.requests + summary.transfers > 0 ? 'Ä°ÅŸ var' : 'Sakin'} tone={summary.actions + summary.requests + summary.transfers > 0 ? 'amber' : 'blue'} />
+          <Badge label={summary.actions + summary.requests + summary.transfers > 0 ? 'İş var' : 'Sakin'} tone={summary.actions + summary.requests + summary.transfers > 0 ? 'amber' : 'blue'} />
         </View>
         <View style={styles.miniList}>
           {[...recent.actions, ...recent.requests, ...recent.transfers].slice(0, 5).map((item, index) => (
             <Pressable key={`${item.action_id || item.alert_id || item.transfer_id || index}`} onPress={() => setTab(item.action_id ? 'approvals' : item.alert_id ? 'requests' : 'transfer')} style={({ pressed }) => [styles.miniListItem, pressed && styles.buttonPressed]}>
-              <Text numberOfLines={1} style={styles.miniListTitle}>{item.title || item.product_name || 'Bekleyen iÅŸlem'}</Text>
-              <Text numberOfLines={1} style={styles.miniListText}>{item.description || item.message || `${marketNameOf(item, 'source')} â†’ ${marketNameOf(item, 'target')}`}</Text>
+              <Text numberOfLines={1} style={styles.miniListTitle}>{item.title || item.product_name || 'Bekleyen işlem'}</Text>
+              <Text numberOfLines={1} style={styles.miniListText}>{item.description || item.message || `${marketNameOf(item, 'source')} → ${marketNameOf(item, 'target')}`}</Text>
             </Pressable>
           ))}
-          {recent.actions.length + recent.requests.length + recent.transfers.length === 0 ? <Text style={styles.cardText}>Åu anda bekleyen yÃ¶netim iÅŸi yok. Talepler, onaylar ve transferler Ã¼st kartlardan aÃ§Ä±lÄ±r.</Text> : null}
+          {recent.actions.length + recent.requests.length + recent.transfers.length === 0 ? <Text style={styles.cardText}>Şu anda bekleyen yönetim işi yok. Talepler, onaylar ve transferler üst kartlardan açılır.</Text> : null}
         </View>
       </Card>
     </Screen>
@@ -838,7 +838,7 @@ function StockScreen({ user }) {
     try {
       setStocks(rows(await api.get('/api/stocks', { params: { market_id: user.market_id, limit: 500 } })));
     } catch (error) {
-      Alert.alert('Stok alÄ±namadÄ±', apiErrorMessage(error));
+      Alert.alert('Stok alınamadı', apiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -859,7 +859,7 @@ function StockScreen({ user }) {
   async function openScanner() {
     const currentPermission = cameraPermission?.granted ? cameraPermission : await requestCameraPermission();
     if (!currentPermission?.granted) {
-      Alert.alert('Kamera izni gerekli', 'Barkod taramak iÃ§in kamera izni verin. Manuel kod aramasÄ± yine kullanÄ±labilir.');
+      Alert.alert('Kamera izni gerekli', 'Barkod taramak için kamera izni verin. Manuel kod araması yine kullanılabilir.');
       return;
     }
     setManualBarcode('');
@@ -898,12 +898,12 @@ function StockScreen({ user }) {
       await load();
       const beforeQty = Number(data.before_quantity ?? 0);
       const afterQty = Number(data.after_quantity ?? selectedItem.quantity ?? 0);
-      Alert.alert('Barkod sayÄ±mÄ± iÅŸlendi', `${product.product_name || productName(selectedItem)} â€¢ ${product.barcode || value}
-Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
+      Alert.alert('Barkod sayımı işlendi', `${product.product_name || productName(selectedItem)} • ${product.barcode || value}
+Stok ${beforeQty} → ${afterQty} olarak güncellendi.`);
     } catch (error) {
       setSelected(null);
       setQuantity('');
-      Alert.alert('Barkod bulunamadÄ±', apiErrorMessage(error, `Bu barkoda baÄŸlÄ± aktif Ã¼rÃ¼n bulunamadÄ±. Okunan kod: ${value || '-'}`));
+      Alert.alert('Barkod bulunamadı', apiErrorMessage(error, `Bu barkoda bağlı aktif ürün bulunamadı. Okunan kod: ${value || '-'}`));
     } finally {
       setSaving(false);
       setScanLocked(false);
@@ -921,9 +921,9 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
   async function saveCount() {
     if (!selected) return;
     const nextQty = Number(quantity);
-    if (!Number.isFinite(nextQty) || nextQty < 0) return Alert.alert('GeÃ§ersiz stok', 'Stok miktarÄ± 0 veya daha bÃ¼yÃ¼k olmalÄ±.');
+    if (!Number.isFinite(nextQty) || nextQty < 0) return Alert.alert('Geçersiz stok', 'Stok miktarı 0 veya daha büyük olmalı.');
     const productId = selected.product_id ?? selected.product?.product_id;
-    if (!productId) return Alert.alert('ÃœrÃ¼n seÃ§ilemedi', 'Stok sayÄ±mÄ± iÃ§in katalog Ã¼rÃ¼nÃ¼ seÃ§ilmelidir.');
+    if (!productId) return Alert.alert('Ürün seçilemedi', 'Stok sayımı için katalog ürünü seçilmelidir.');
     setSaving(true);
     try {
       await api.post('/api/stocks', {
@@ -934,14 +934,14 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
         user_id: user.user_id,
         created_by_user_id: user.user_id,
         source: 'mobile_stock_count',
-        note: 'Mobil personel stok sayÄ±mÄ±/gÃ¼ncelleme'
+        note: 'Mobil personel stok sayımı/güncelleme'
       });
       setSelected(null);
       setQuantity('');
       await load();
-      Alert.alert('Stok gÃ¼ncellendi', `${productName(selected)} iÃ§in stok ${nextQty} adet olarak iÅŸlendi.`);
+      Alert.alert('Stok güncellendi', `${productName(selected)} için stok ${nextQty} adet olarak işlendi.`);
     } catch (error) {
-      Alert.alert('Stok gÃ¼ncellenemedi', apiErrorMessage(error));
+      Alert.alert('Stok güncellenemedi', apiErrorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -957,7 +957,7 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
             value={query}
             onChangeText={setQuery}
             style={styles.searchInput}
-            placeholder="ÃœrÃ¼n adÄ±, kod veya barkod ara"
+            placeholder="Ürün adı, kod veya barkod ara"
             placeholderTextColor={colors.softText}
           />
         </View>
@@ -991,17 +991,17 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
             </View>
           </CameraView>
           <View style={styles.scannerFooter}>
-            <Text style={styles.scannerFooterText}>Kamera siyah gÃ¶rÃ¼nÃ¼rse barkodu manuel girerek de sayÄ±mÄ± iÅŸleyebilirsiniz.</Text>
+            <Text style={styles.scannerFooterText}>Kamera siyah görünürse barkodu manuel girerek de sayımı işleyebilirsiniz.</Text>
             <TextInput
               value={manualBarcode}
               onChangeText={setManualBarcode}
               keyboardType="numeric"
               style={styles.input}
-              placeholder="Barkod numarasÄ±"
+              placeholder="Barkod numarası"
               placeholderTextColor={colors.softText}
             />
             <View style={styles.buttonRow}>
-              <Button title="Manuel Ä°ÅŸle" onPress={() => handleScannedCode(manualBarcode)} loading={saving} style={{ flex: 1 }} />
+              <Button title="Manuel İşle" onPress={() => handleScannedCode(manualBarcode)} loading={saving} style={{ flex: 1 }} />
               <Button title="Kapat" onPress={() => setScannerOpen(false)} variant="secondary" style={{ flex: 1 }} />
             </View>
           </View>
@@ -1014,12 +1014,12 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
               <Text style={styles.cardTitle}>{productName(selected)}</Text>
               <Text style={styles.muted}>Mevcut stok: {Math.round(Number(selected.quantity || 0))} adet</Text>
             </View>
-            <Badge label="SayÄ±m" tone="blue" />
+            <Badge label="Sayım" tone="blue" />
           </View>
-          <TextInput value={quantity} onChangeText={setQuantity} keyboardType="numeric" style={styles.input} placeholder="Yeni stok miktarÄ±" placeholderTextColor={colors.softText} />
+          <TextInput value={quantity} onChangeText={setQuantity} keyboardType="numeric" style={styles.input} placeholder="Yeni stok miktarı" placeholderTextColor={colors.softText} />
           <View style={styles.buttonRow}>
             <Button title="Stok Kaydet" onPress={saveCount} loading={saving} style={{ flex: 1 }} />
-            <Button title="VazgeÃ§" onPress={() => setSelected(null)} variant="secondary" style={{ flex: 1 }} />
+            <Button title="Vazgeç" onPress={() => setSelected(null)} variant="secondary" style={{ flex: 1 }} />
           </View>
         </Card>
       ) : null}
@@ -1027,7 +1027,7 @@ Stok ${beforeQty} â†’ ${afterQty} olarak gÃ¼ncellendi.`);
         data={filtered}
         keyExtractor={(item, index) => `${item.market_id || user?.market_id}-${item.product_id || index}`}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
-        ListEmptyComponent={<Empty title="Stok kaydÄ± yok" text="Bu ÅŸube iÃ§in Ã¼rÃ¼n kaydÄ± bulunamadÄ±." />}
+        ListEmptyComponent={<Empty title="Stok kaydı yok" text="Bu şube için ürün kaydı bulunamadı." />}
         renderItem={({ item }) => <StockRow item={item} onPress={() => selectStockItem(item)} />}
         contentContainerStyle={{ paddingBottom: 26 }}
         showsVerticalScrollIndicator={false}
@@ -1046,7 +1046,7 @@ function StockRow({ item, onPress }) {
       <Card style={styles.rowCard}>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{productName(item)}</Text>
-          <Text style={styles.rowMeta}>{item.category || item.product_category || 'Kategori'} â€¢ Min: {min}{max ? ` â€¢ Max: ${max}` : ''}</Text>
+          <Text style={styles.rowMeta}>{item.category || item.product_category || 'Kategori'} • Min: {min}{max ? ` • Max: ${max}` : ''}</Text>
         </View>
         <View style={{ alignItems: 'flex-end', gap: 6 }}>
           <Text style={styles.qty}>{qty}</Text>
@@ -1076,7 +1076,7 @@ function TransferScreen({ user, admin = false, refreshTop }) {
       setItems(branchTransfers.sort((a, b) => String(a.status || '').localeCompare(String(b.status || ''), 'tr')));
       refreshTop?.();
     } catch (error) {
-      Alert.alert('Transfer alÄ±namadÄ±', apiErrorMessage(error));
+      Alert.alert('Transfer alınamadı', apiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -1088,9 +1088,9 @@ function TransferScreen({ user, admin = false, refreshTop }) {
     try {
       await api.post(`/api/transfers/${item.transfer_id}/complete`, null, { params: { user_id: user?.user_id } });
       await load();
-      Alert.alert('Transfer tamamlandÄ±', 'Teslim alma kaydÄ± iÅŸlendi.');
+      Alert.alert('Transfer tamamlandı', 'Teslim alma kaydı işlendi.');
     } catch (error) {
-      Alert.alert('Transfer tamamlanamadÄ±', apiErrorMessage(error));
+      Alert.alert('Transfer tamamlanamadı', apiErrorMessage(error));
     } finally {
       setBusyId(null);
     }
@@ -1102,7 +1102,7 @@ function TransferScreen({ user, admin = false, refreshTop }) {
       await api.patch(`/api/transfers/${item.transfer_id}/decision`, { status, user_id: user?.user_id });
       await load();
     } catch (error) {
-      Alert.alert('Transfer gÃ¼ncellenemedi', apiErrorMessage(error));
+      Alert.alert('Transfer güncellenemedi', apiErrorMessage(error));
     } finally {
       setBusyId(null);
     }
@@ -1114,7 +1114,7 @@ function TransferScreen({ user, admin = false, refreshTop }) {
         data={items}
         keyExtractor={(item, index) => String(item.transfer_id || index)}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={load} />}
-        ListEmptyComponent={<Empty title="Transfer gÃ¶revi yok" />}
+        ListEmptyComponent={<Empty title="Transfer görevi yok" />}
         renderItem={({ item }) => <TransferRow item={item} ownMarketId={user?.market_id} admin={admin} onComplete={() => complete(item)} onApprove={() => decide(item, 'approved')} onReject={() => decide(item, 'rejected')} loading={String(busyId || '').startsWith(String(item.transfer_id))} />}
         contentContainerStyle={{ paddingBottom: 26, gap: 10 }}
         showsVerticalScrollIndicator={false}
@@ -1134,16 +1134,16 @@ function TransferRow({ item, ownMarketId, admin, onComplete, onApprove, onReject
       <View style={styles.rowCardNoMargin}>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{productName(item)}</Text>
-          <Text style={styles.rowMeta}>{marketNameOf(item, 'source')} â†’ {marketNameOf(item, 'target')}</Text>
+          <Text style={styles.rowMeta}>{marketNameOf(item, 'source')} → {marketNameOf(item, 'target')}</Text>
         </View>
         <Badge label={admin ? statusLabel(item.status) : (incoming ? 'Gelen' : 'Giden')} tone={statusTone(item.status)} />
       </View>
       <View style={styles.transferStats}>
         <View><Text style={styles.statLabel}>Miktar</Text><Text style={styles.statValue}>{Math.round(Number(item.quantity || 0))} adet</Text></View>
         <View><Text style={styles.statLabel}>Durum</Text><Text style={styles.statValue}>{statusLabel(item.status)}</Text></View>
-        {confidence !== undefined ? <View><Text style={styles.statLabel}>AI</Text><Text style={styles.statValue}>GÃ¼ven %{pct(confidence)}</Text></View> : null}
+        {confidence !== undefined ? <View><Text style={styles.statLabel}>AI</Text><Text style={styles.statValue}>Güven %{pct(confidence)}</Text></View> : null}
       </View>
-      {item.estimated_gain || item.estimated_profit_gain ? <Text style={styles.cardText}>Tahmini katkÄ±: {money(item.estimated_gain || item.estimated_profit_gain)}</Text> : null}
+      {item.estimated_gain || item.estimated_profit_gain ? <Text style={styles.cardText}>Tahmini katkı: {money(item.estimated_gain || item.estimated_profit_gain)}</Text> : null}
       {canDecide ? <View style={styles.buttonRow}><Button title="Onayla" onPress={onApprove} loading={loading} style={{ flex: 1 }} /><Button title="Reddet" onPress={onReject} variant="secondary" style={{ flex: 1 }} /></View> : null}
       {canComplete ? <Button title="Teslim Al ve Tamamla" onPress={onComplete} loading={loading} /> : null}
     </Card>
@@ -1162,7 +1162,7 @@ function AdminRequestsScreen({ user, refreshTop }) {
       setItems(rows(response).filter(isStaffRequestAlert));
       refreshTop?.();
     } catch (error) {
-      Alert.alert('Talep alÄ±namadÄ±', apiErrorMessage(error));
+      Alert.alert('Talep alınamadı', apiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -1175,7 +1175,7 @@ function AdminRequestsScreen({ user, refreshTop }) {
       await api.patch(`/api/alerts/${item.alert_id}/status`, { status });
       await load();
     } catch (error) {
-      Alert.alert('Talep gÃ¼ncellenemedi', apiErrorMessage(error));
+      Alert.alert('Talep güncellenemedi', apiErrorMessage(error));
     } finally {
       setBusyId(null);
     }
@@ -1193,7 +1193,7 @@ function AdminRequestsScreen({ user, refreshTop }) {
             <View style={styles.rowCardNoMargin}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowTitle}>{item.title || 'Talep'}</Text>
-                <Text style={styles.rowMeta}>{item.market_name || item.market?.name || 'Åube'} â€¢ {statusLabel(item.severity)}</Text>
+                <Text style={styles.rowMeta}>{item.market_name || item.market?.name || 'Şube'} • {statusLabel(item.severity)}</Text>
               </View>
               <Badge label={statusLabel(item.severity)} tone={statusTone(item.severity)} />
             </View>
@@ -1227,7 +1227,7 @@ function AdminApprovalsScreen({ user }) {
       const transfers = transfersResult.status === 'fulfilled' ? rows(transfersResult.value).map((item) => ({ ...item, approval_kind: 'transfer' })) : [];
       setItems([...actions, ...transfers].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)));
     } catch (error) {
-      Alert.alert('Onaylar alÄ±namadÄ±', apiErrorMessage(error));
+      Alert.alert('Onaylar alınamadı', apiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -1240,13 +1240,13 @@ function AdminApprovalsScreen({ user }) {
     try {
       if (item.approval_kind === 'transfer') {
         const status = type === 'approve' ? 'approved' : 'rejected';
-        await api.patch(`/api/transfers/${item.transfer_id}/decision`, { status, user_id: user?.user_id, reason: status === 'rejected' ? 'Mobil admin tarafÄ±ndan reddedildi' : null });
+        await api.patch(`/api/transfers/${item.transfer_id}/decision`, { status, user_id: user?.user_id, reason: status === 'rejected' ? 'Mobil admin tarafından reddedildi' : null });
       } else {
         await api.post(`/api/assistant/actions/${item.action_id}/${type}`, { user_id: user?.user_id });
       }
       await load();
     } catch (error) {
-      Alert.alert('Ä°ÅŸlem tamamlanamadÄ±', apiErrorMessage(error));
+      Alert.alert('İşlem tamamlanamadı', apiErrorMessage(error));
     } finally {
       setBusyId(null);
     }
@@ -1257,9 +1257,9 @@ function AdminApprovalsScreen({ user }) {
     try {
       await api.post(`/api/transfers/${item.transfer_id}/complete`, null, { params: { user_id: user?.user_id } });
       await load();
-      Alert.alert('Transfer tamamlandÄ±', 'Stok hareketi iÅŸlendi.');
+      Alert.alert('Transfer tamamlandı', 'Stok hareketi işlendi.');
     } catch (error) {
-      Alert.alert('Transfer tamamlanamadÄ±', apiErrorMessage(error));
+      Alert.alert('Transfer tamamlanamadı', apiErrorMessage(error));
     } finally {
       setBusyId(null);
     }
@@ -1279,12 +1279,12 @@ function AdminApprovalsScreen({ user }) {
             <Card style={styles.alertCard}>
               <View style={styles.rowCardNoMargin}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.rowTitle}>{isTransfer ? `${productName(item)} transfer onayÄ±` : (item.title || 'Ä°ÅŸlem taslaÄŸÄ±')}</Text>
-                  <Text style={styles.rowMeta}>{isTransfer ? `${marketNameOf(item, 'source')} â†’ ${marketNameOf(item, 'target')}` : `${statusLabel(item.action_type)} â€¢ GÃ¼ven %${pct(item.confidence)}`}</Text>
+                  <Text style={styles.rowTitle}>{isTransfer ? `${productName(item)} transfer onayı` : (item.title || 'İşlem taslağı')}</Text>
+                  <Text style={styles.rowMeta}>{isTransfer ? `${marketNameOf(item, 'source')} → ${marketNameOf(item, 'target')}` : `${statusLabel(item.action_type)} • Güven %${pct(item.confidence)}`}</Text>
                 </View>
                 <Badge label={isTransfer ? statusLabel(item.status) : statusLabel(item.risk_level || 'medium')} tone={isTransfer ? statusTone(item.status) : statusTone(item.risk_level || 'medium')} />
               </View>
-              <Text style={styles.cardText}>{isTransfer ? `${Math.round(Number(item.quantity || 0))} adet â€¢ Tahmini katkÄ± ${money(item.estimated_profit_gain || 0)}` : (item.description || '')}</Text>
+              <Text style={styles.cardText}>{isTransfer ? `${Math.round(Number(item.quantity || 0))} adet • Tahmini katkı ${money(item.estimated_profit_gain || 0)}` : (item.description || '')}</Text>
               {isTransfer && item.status === 'approved' ? (
                 <Button title="Tamamla" onPress={() => completeTransfer(item)} loading={busy} />
               ) : (
@@ -1317,7 +1317,7 @@ function AlertsScreen({ user, admin = false, refreshTop }) {
       setItems(rows(response).filter((item) => admin ? isOperationalAlertForAdmin(item) : isMobileVisibleAlert(item, user)));  
       refreshTop?.();
     } catch (error) {
-      Alert.alert('Bildirim alÄ±namadÄ±', apiErrorMessage(error));
+      Alert.alert('Bildirim alınamadı', apiErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -1329,7 +1329,7 @@ function AlertsScreen({ user, admin = false, refreshTop }) {
       await api.patch(`/api/alerts/${item.alert_id}/status`, { status: 'reviewed' });
       await load();
     } catch (error) {
-      Alert.alert('Bildirim gÃ¼ncellenemedi', apiErrorMessage(error));
+      Alert.alert('Bildirim güncellenemedi', apiErrorMessage(error));
     }
   }
 
@@ -1418,10 +1418,10 @@ function RequestScreen({ user }) {
   }
 
   async function createRequest() {
-    if (!selectedProduct) return Alert.alert('Eksik bilgi', 'Katalogdan Ã¼rÃ¼n seÃ§melisiniz. Serbest Ã¼rÃ¼n adÄ± kabul edilmez.');
+    if (!selectedProduct) return Alert.alert('Eksik bilgi', 'Katalogdan ürün seçmelisiniz. Serbest ürün adı kabul edilmez.');
     const qty = Number(quantity);
-    if (!Number.isFinite(qty) || qty <= 0) return Alert.alert('GeÃ§ersiz adet', 'Talep adedi 1 veya daha bÃ¼yÃ¼k olmalÄ±.');
-    if (qty > 999) return Alert.alert('Adet sÄ±nÄ±rÄ±', 'Tek talepte en fazla 999 adet girilebilir. Daha bÃ¼yÃ¼k ihtiyaÃ§ iÃ§in not ekleyin.');
+    if (!Number.isFinite(qty) || qty <= 0) return Alert.alert('Geçersiz adet', 'Talep adedi 1 veya daha büyük olmalı.');
+    if (qty > 999) return Alert.alert('Adet sınırı', 'Tek talepte en fazla 999 adet girilebilir. Daha büyük ihtiyaç için not ekleyin.');
     setSending(true);
     try {
       await api.post('/api/stock-requests', {
@@ -1432,7 +1432,7 @@ function RequestScreen({ user }) {
         created_by_user_id: user?.user_id,
         quantity: qty,
         source: 'mobile_staff_request',
-        note: note.trim() || `${selectedProduct.product_name} iÃ§in ${qty} adet personel talebi`,
+        note: note.trim() || `${selectedProduct.product_name} için ${qty} adet personel talebi`,
         severity
       });
       setSelectedProductId('');
@@ -1441,9 +1441,9 @@ function RequestScreen({ user }) {
       setNote('');
       setSeverity('low');
       await loadHistory();
-      Alert.alert('Talep gÃ¶nderildi', `${selectedProduct.product_name} (${selectedProduct.barcode || 'barkod yok'}) iÃ§in ${qty} adet talep yÃ¶netici onayÄ±na iletildi.`);
+      Alert.alert('Talep gönderildi', `${selectedProduct.product_name} (${selectedProduct.barcode || 'barkod yok'}) için ${qty} adet talep yönetici onayına iletildi.`);
     } catch (error) {
-      Alert.alert('Talep gÃ¶nderilemedi', apiErrorMessage(error));
+      Alert.alert('Talep gönderilemedi', apiErrorMessage(error));
     } finally {
       setSending(false);
     }
@@ -1452,7 +1452,7 @@ function RequestScreen({ user }) {
   return (
     <Screen>
       <Card style={{ gap: 12 }}>
-        <Text style={styles.label}>ÃœrÃ¼n seÃ§</Text>
+        <Text style={styles.label}>Ürün seç</Text>
         <TextInput
           value={query}
           onChangeText={(value) => {
@@ -1461,7 +1461,7 @@ function RequestScreen({ user }) {
             if (!value.trim()) setSelectedProductId('');
           }}
           style={styles.input}
-          placeholder="ÃœrÃ¼n adÄ±, kod veya barkod ara"
+          placeholder="Ürün adı, kod veya barkod ara"
           placeholderTextColor={colors.softText}
         />
         {filteredProducts.length > 0 ? (
@@ -1472,7 +1472,7 @@ function RequestScreen({ user }) {
                 <Pressable key={item.product_id} onPress={() => selectProduct(item)} style={({ pressed }) => [styles.productDropdownItem, pressed && styles.buttonPressed]}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.productDropdownTitle}>{item.product_name}</Text>
-                    <Text style={styles.productDropdownMeta}>{item.barcode || 'barkod yok'} â€¢ Mevcut: {Math.round(Number(stock?.quantity || 0))} adet</Text>
+                    <Text style={styles.productDropdownMeta}>{item.barcode || 'barkod yok'} • Mevcut: {Math.round(Number(stock?.quantity || 0))} adet</Text>
                   </View>
                   <MaterialCommunityIcons name="chevron-right" size={22} color={colors.softText} />
                 </Pressable>
@@ -1480,11 +1480,11 @@ function RequestScreen({ user }) {
             })}
           </View>
         ) : null}
-        {query.trim().length > 0 && !selectedProduct && filteredProducts.length === 0 ? <Text style={styles.helperText}>Katalogda eÅŸleÅŸen Ã¼rÃ¼n bulunamadÄ±.</Text> : null}
+        {query.trim().length > 0 && !selectedProduct && filteredProducts.length === 0 ? <Text style={styles.helperText}>Katalogda eşleşen ürün bulunamadı.</Text> : null}
         {selectedProduct ? (
           <View style={styles.selectedInfoBox}>
             <Text style={styles.cardTitle}>{selectedProduct.product_name}</Text>
-            <Text style={styles.cardText}>Barkod: {selectedProduct.barcode || 'yok'} â€¢ Mevcut stok: {Math.round(Number(selectedStock?.quantity || 0))} adet</Text>
+            <Text style={styles.cardText}>Barkod: {selectedProduct.barcode || 'yok'} • Mevcut stok: {Math.round(Number(selectedStock?.quantity || 0))} adet</Text>
           </View>
         ) : null}
         <Text style={styles.label}>Adet</Text>
@@ -1492,32 +1492,32 @@ function RequestScreen({ user }) {
         {selectedProduct ? <View style={styles.quickQtyRow}>{quickQuantities.map((value) => <QuickQty key={value} title={`${value}`} active={quantity === String(value)} onPress={() => setQuantity(String(value))} />)}</View> : null}
         <Text style={styles.label}>Not</Text>
         <TextInput value={note} onChangeText={setNote} style={[styles.input, styles.textArea]} multiline placeholder="" placeholderTextColor={colors.softText} />
-        <Text style={styles.label}>Ã–ncelik</Text>
+        <Text style={styles.label}>Öncelik</Text>
         <View style={styles.choiceGrid}>
-          <Choice title="DÃ¼ÅŸÃ¼k" active={severity === 'low'} onPress={() => setSeverity('low')} />
+          <Choice title="Düşük" active={severity === 'low'} onPress={() => setSeverity('low')} />
           <Choice title="Orta" active={severity === 'medium'} onPress={() => setSeverity('medium')} />
-          <Choice title="YÃ¼ksek" active={severity === 'high'} onPress={() => setSeverity('high')} />
+          <Choice title="Yüksek" active={severity === 'high'} onPress={() => setSeverity('high')} />
           <Choice title="Kritik" active={severity === 'critical'} onPress={() => setSeverity('critical')} />
         </View>
-        <Button title="GÃ¶nder" onPress={createRequest} loading={sending} />
+        <Button title="Gönder" onPress={createRequest} loading={sending} />
       </Card>
 
       <Card style={{ gap: 10 }}>
         <View style={styles.rowCardNoMargin}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>GeÃ§miÅŸ Taleplerim</Text>
-            <Text style={styles.cardText}>Mobilde oluÅŸturduÄŸun taleplerin durumunu buradan takip edebilirsin.</Text>
+            <Text style={styles.cardTitle}>Geçmiş Taleplerim</Text>
+            <Text style={styles.cardText}>Mobilde oluşturduğun taleplerin durumunu buradan takip edebilirsin.</Text>
           </View>
           <Button title="Yenile" onPress={loadHistory} loading={historyLoading} variant="ghost" />
         </View>
         {historyLoading && history.length === 0 ? <ActivityIndicator color={colors.blue} /> : null}
-        {!historyLoading && history.length === 0 ? <Empty title="HenÃ¼z talep yok" text="Talep oluÅŸturduÄŸunda durumu burada gÃ¶rÃ¼nÃ¼r." /> : null}
+        {!historyLoading && history.length === 0 ? <Empty title="Henüz talep yok" text="Talep oluşturduğunda durumu burada görünür." /> : null}
         {history.slice(0, 10).map((item) => (
           <View key={String(item.alert_id)} style={styles.requestHistoryItem}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text numberOfLines={1} style={styles.rowTitle}>{item.product_name || item.title || 'Talep'}</Text>
               <Text numberOfLines={2} style={styles.rowMeta}>
-                {item.barcode || item.product_barcode || 'barkod yok'} â€¢ {requestDate(item.created_at)}
+                {item.barcode || item.product_barcode || 'barkod yok'} • {requestDate(item.created_at)}
               </Text>
               {item.message ? <Text numberOfLines={2} style={styles.cardText}>{item.message}</Text> : null}
             </View>
@@ -1568,7 +1568,7 @@ function AssistantScreen({ user }) {
       try {
         listRef.current?.scrollToEnd?.({ animated: true });
       } catch (_error) {
-        // Liste henÃ¼z Ã¶lÃ§Ã¼lmediyse sonraki layout tetiklemesi tekrar deneyecek.
+        // Liste henüz ölçülmediyse sonraki layout tetiklemesi tekrar deneyecek.
       }
     }, 80);
   }, []);
@@ -1619,7 +1619,7 @@ function AssistantScreen({ user }) {
         };
       }));
     } catch (error) {
-      Alert.alert('Ä°ÅŸlem tamamlanamadÄ±', apiErrorMessage(error));
+      Alert.alert('İşlem tamamlanamadı', apiErrorMessage(error));
     } finally {
       setActionBusyId(null);
     }
@@ -1646,7 +1646,7 @@ function AssistantScreen({ user }) {
         };
       }));
     } catch (error) {
-      Alert.alert('Toplu iÅŸlem tamamlanamadÄ±', apiErrorMessage(error));
+      Alert.alert('Toplu işlem tamamlanamadı', apiErrorMessage(error));
     } finally {
       setActionBusyId(null);
     }
@@ -1660,11 +1660,11 @@ function AssistantScreen({ user }) {
     setLoading(true);
     try {
       const response = await api.post('/api/assistant/chat', { message, user_id: userId, mode: 'approval' }, { timeout: 120000 });
-      const answer = response.data?.answer || 'Ä°ÅŸlem tamamlandÄ±.';
+      const answer = response.data?.answer || 'İşlem tamamlandı.';
       const inlineActions = admin ? await loadInlineActions(response.data) : assistantActionsFromPayload(response.data).slice(0, 4);
       setMessages((current) => [...current, { role: 'assistant', content: answer, actions: inlineActions }]);
     } catch (error) {
-      setMessages((current) => [...current, { role: 'assistant', content: apiErrorMessage(error, 'KARVAI isteÄŸi tamamlanamadÄ±.') }]);
+      setMessages((current) => [...current, { role: 'assistant', content: apiErrorMessage(error, 'KARVAI isteği tamamlanamadı.') }]);
     } finally {
       setLoading(false);
     }
@@ -1687,7 +1687,7 @@ function AssistantScreen({ user }) {
       <View style={styles.composer}>
         <TextInput value={input} onChangeText={setInput} style={styles.composerInput} multiline placeholder="Mesaj yaz" placeholderTextColor={colors.softText} />
         <Pressable onPress={send} disabled={loading} style={styles.sendButton}>
-          {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.sendButtonText}>GÃ¶nder</Text>}
+          {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.sendButtonText}>Gönder</Text>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -1707,8 +1707,8 @@ function ChatBubble({ item, admin, actionBusyId, onApprove, onReject, onApproveA
         <View style={styles.inlineActionStack}>
           {visibleActions.length > 1 ? (
             <View style={styles.bulkActionBar}>
-              <Button title="TÃ¼mÃ¼nÃ¼ Onayla" onPress={() => onApproveAll?.(visibleActions)} loading={bulkBusy && String(actionBusyId || '').includes('approve')} style={{ flex: 1, minHeight: 40 }} />
-              <Button title="TÃ¼mÃ¼nÃ¼ Reddet" onPress={() => onRejectAll?.(visibleActions)} loading={bulkBusy && String(actionBusyId || '').includes('reject')} variant="secondary" style={{ flex: 1, minHeight: 40 }} />
+              <Button title="Tümünü Onayla" onPress={() => onApproveAll?.(visibleActions)} loading={bulkBusy && String(actionBusyId || '').includes('approve')} style={{ flex: 1, minHeight: 40 }} />
+              <Button title="Tümünü Reddet" onPress={() => onRejectAll?.(visibleActions)} loading={bulkBusy && String(actionBusyId || '').includes('reject')} variant="secondary" style={{ flex: 1, minHeight: 40 }} />
             </View>
           ) : null}
           {visibleActions.map((action, index) => (
@@ -1731,8 +1731,8 @@ function ActionMiniCard({ action, onApprove, onReject, busy }) {
     <View style={styles.actionMiniCard}>
       <View style={styles.rowCardNoMargin}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.actionMiniTitle}>{action.title || 'Ä°ÅŸlem taslaÄŸÄ±'}</Text>
-          <Text style={styles.actionMiniMeta}>{statusLabel(action.action_type)} â€¢ GÃ¼ven %{pct(action.confidence)}</Text>
+          <Text style={styles.actionMiniTitle}>{action.title || 'İşlem taslağı'}</Text>
+          <Text style={styles.actionMiniMeta}>{statusLabel(action.action_type)} • Güven %{pct(action.confidence)}</Text>
         </View>
         <Badge label={statusLabel(action.risk_level || 'medium')} tone={statusTone(action.risk_level || 'medium')} />
       </View>
@@ -1755,11 +1755,11 @@ function ProfileScreen({ user, onLogout }) {
     <Screen>
       <Card style={styles.profileCard}>
         <View style={styles.avatar}><Text style={styles.avatarText}>{(user?.full_name || user?.username || 'K').slice(0, 1).toUpperCase()}</Text></View>
-        <Text style={styles.profileName}>{user?.full_name || user?.username || 'KARVENTER KullanÄ±cÄ±sÄ±'}</Text>
-        <Text style={styles.profileMeta}>{profileRoleLabel(user)} â€¢ {profileScopeLabel(user)}</Text>
+        <Text style={styles.profileName}>{user?.full_name || user?.username || 'KARVENTER Kullanıcısı'}</Text>
+        <Text style={styles.profileMeta}>{profileRoleLabel(user)} • {profileScopeLabel(user)}</Text>
       </Card>
       <Card style={{ gap: 10 }}>
-        <Button title="Ã‡Ä±kÄ±ÅŸ Yap" onPress={logout} variant="danger" />
+        <Button title="Çıkış Yap" onPress={logout} variant="danger" />
       </Card>
     </Screen>
   );
@@ -1961,4 +1961,3 @@ const styles = StyleSheet.create({
   navAiText: { color: colors.softText, fontSize: 9, fontWeight: '900' },
   navAiTextActive: { color: colors.blue }
 });
-

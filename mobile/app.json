@@ -2,7 +2,7 @@
   "expo": {
     "name": "KARVENTER",
     "slug": "karventer-mobile",
-    "version": "1.0.19",
+    "version": "1.0.20",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "karventer",
@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.karventer.mobile",
-      "versionCode": 7,
+      "versionCode": 8,
       "adaptiveIcon": {
         "backgroundColor": "#2563EB",
         "foregroundImage": "./assets/icon.png"
