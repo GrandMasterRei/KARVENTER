@@ -1,52 +1,84 @@
-﻿const BACKEND_ORIGIN = 'https://mailed-bent-isbn-files.trycloudflare.com';
+const BACKEND_ORIGIN = "https://mailed-bent-isbn-files.trycloudflare.com";
+
+export async function onRequest(context) {
+  const { request, params } = context;
+
+  const rawPath = params.path || [];
+  const path = Array.isArray(rawPath) ? rawPath.join("/") : String(rawPath || "");
+
+  const incomingUrl = new URL(request.url);
+
+  let targetPath;
+  if (path === "docs") {
+    targetPath = "/docs";
+  } else if (path === "openapi.json") {
+    targetPath = "/openapi.json";
+  } else if (path === "") {
+    targetPath = "/api";
+  } else {
+    targetPath = `/api/${path}`;
+  }
+
+  const targetUrl = `${BACKEND_ORIGIN}${targetPath}${incomingUrl.search}`;
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(),
+    });
+  }
+
+  const headers = new Headers(request.headers);
+  headers.delete("host");
+
+  const init = {
+    method: request.method,
+    headers,
+    redirect: "follow",
+  };
+
+  if (!["GET", "HEAD"].includes(request.method)) {
+    init.body = request.body;
+  }
+
+  try {
+    const backendResponse = await fetch(targetUrl, init);
+    const responseHeaders = new Headers(backendResponse.headers);
+
+    for (const [key, value] of Object.entries(corsHeaders())) {
+      responseHeaders.set(key, value);
+    }
+
+    responseHeaders.set("Cache-Control", "no-store");
+
+    return new Response(backendResponse.body, {
+      status: backendResponse.status,
+      statusText: backendResponse.statusText,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: "API proxy backend baglantisi basarisiz",
+        targetUrl,
+        message: String(error),
+      }),
+      {
+        status: 502,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders(),
+        },
+      }
+    );
+  }
+}
 
 function corsHeaders() {
   return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
-}
-
-export async function onRequest({ request, params }) {
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders() });
-  }
-
-  const incomingUrl = new URL(request.url);
-  const rawPath = params.path;
-  const parts = Array.isArray(rawPath) ? rawPath : rawPath ? [rawPath] : [];
-  const path = parts.join('/');
-
-  let backendPath;
-  if (path === 'docs') {
-    backendPath = '/docs';
-  } else if (path === 'openapi.json') {
-    backendPath = '/openapi.json';
-  } else {
-    backendPath = `/api/${path}`;
-  }
-
-  const targetUrl = new URL(backendPath, BACKEND_ORIGIN.replace(/\/$/, ''));
-  targetUrl.search = incomingUrl.search;
-
-  const headers = new Headers(request.headers);
-  headers.delete('host');
-  headers.delete('origin');
-
-  const response = await fetch(targetUrl.toString(), {
-    method: request.method,
-    headers,
-    body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body,
-    redirect: 'manual',
-  });
-
-  const responseHeaders = new Headers(response.headers);
-  Object.entries(corsHeaders()).forEach(([key, value]) => responseHeaders.set(key, value));
-
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: responseHeaders,
-  });
 }
