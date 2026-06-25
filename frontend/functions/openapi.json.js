@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://registrar-looksmart-bridge-consisting.trycloudflare.com';
+﻿const BACKEND_ORIGIN = 'https://exemption-howard-greene-attend.trycloudflare.com ';
 
 export async function onRequest({ request }) {
   const targetUrl = new URL('/openapi.json', BACKEND_ORIGIN.replace(/\/$/, ''));
