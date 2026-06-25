@@ -1,4 +1,4 @@
-﻿const BACKEND_ORIGIN = 'https://entered-oliver-selecting-sender.trycloudflare.com/api/users';
+﻿const BACKEND_ORIGIN = 'https://mailed-bent-isbn-files.trycloudflare.com';
 
 function corsHeaders() {
   return {
