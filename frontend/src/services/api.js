@@ -3,7 +3,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: 'https://mph-receiver-columbus-throughout.trycloudflare.com',
   timeout: 15000
 });
 
@@ -32,7 +32,6 @@ export function extractRows(response) {
   return [];
 }
 
-
 const apiCache = new Map();
 
 export function clearApiCache() {
@@ -57,9 +56,9 @@ if (typeof window !== 'undefined') {
 }
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('karventer_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const t = localStorage.getItem('karventer_token');
+  if (t) {
+    config.headers.Authorization = `Bearer ${t}`;
   }
   return config;
 });
